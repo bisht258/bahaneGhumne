@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aaj Ghumne Challe?</title>
+  <style>
+    /* Global Styles */
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      color: white;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    #answer {
+      font-size: 1.2rem;
+      background: rgba(255, 255, 255, 0.8);
+      color: #2d3436; /* Changed from inherited white to dark gray */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin: 20px auto;
+      max-width: 90%;
+      min-height: 80px;
+    }
+
+
+    button {
+      padding: 12px 30px;
+      font-size: 1rem;
+      background: white;
+      color: #2d3436;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+      background: #f8f9fa;
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      #answer {
+        font-size: 1rem;
+        padding: 15px;
+      }
+
+      button {
+        padding: 10px 25px;
+        font-size: 0.9rem;
+        white-space: nowrap; /* Added line */
+        margin: 0 10px; /* Added line */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div>
+    <h1>Aaj Ghumne Challe?</h1>
+    <div id="answer">🤔</div>
+    <button onclick="getAnswer()">Puchho group ke larko se?</button>
+  </div>
+
+  <script>
+    const FALLBACK_ANSWERS = [
+      "Mujhe SSB ka padna hai!",
+      "Mai toh Gaira hu, tum khud hi smjh lo",
+      "Yrr tumhare mood ke according jo kya chalunga",
+      "Chirag ni hai,toh mai ni aaunga",
+      "Tujhe apni gf ke saath ni gaya kya aaj?",
+      "nahi aaaunga"
+    ];
+  
+    // Shuffle management variables
+    let shuffledAnswers = [];
+    let currentFallbackIndex = 0;
+  
+    // Fisher-Yates shuffle algorithm
+    function shuffleAnswers() {
+      shuffledAnswers = [...FALLBACK_ANSWERS];
+      for (let i = shuffledAnswers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledAnswers[i], shuffledAnswers[j]] = [shuffledAnswers[j], shuffledAnswers[i]];
+      }
+    }
+  
+    // Initial shuffle
+    shuffleAnswers();
+  
+    async function getAnswer() {
+      const answerEl = document.getElementById('answer');
+      answerEl.textContent = "Ruko zara... ⏳";
+  
+      try {
+        const response = await fetch('https://naas.isalman.dev/no', { timeout: 3000 });
+        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+        const data = await response.json();
+        answerEl.textContent = data.reason || "Kuch toh gadbad hai Daya!";
+      } catch (error) {
+        console.error('API Error:', error);
+        
+        // Get next answer in sequence
+        answerEl.textContent = shuffledAnswers[currentFallbackIndex];
+        
+        // Update index and reshuffle if needed
+        currentFallbackIndex = (currentFallbackIndex + 1) % shuffledAnswers.length;
+        if(currentFallbackIndex === 0) {
+          shuffleAnswers();
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>
